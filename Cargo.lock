@@ -447,7 +447,6 @@ dependencies = [
  "casper-contract",
  "casper-erc20",
  "casper-types",
- "rand 0.8.4",
 ]
 
 [[package]]

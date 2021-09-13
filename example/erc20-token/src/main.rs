@@ -1,5 +1,6 @@
-#[cfg_attr(target_arch = "wasm32", no_std)]
-#[cfg_attr(target_arch = "wasm32", no_main)]
+#[cfg_attr(target_arch = "wasm32-unknown-unknown", no_std)]
+#[cfg_attr(target_arch = "wasm32-unknown-unknown", no_main)]
+
 extern crate alloc;
 
 use alloc::string::String;
@@ -92,21 +93,15 @@ fn call() {
     let _token = ERC20::install(name, symbol, decimals, total_supply).unwrap_or_revert();
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(target_arch = "wasm32-unknown-unknown"))]
 fn main() {}
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(target_arch = "wasm32-unknown-unknown"))]
 mod standalone_support {
 
     #[allow(unused_variables)]
     pub mod native_ext_ffi {
-        use std::{
-            collections::BTreeMap,
-            ptr,
-            sync::{Arc, Mutex},
-        };
-
-        use rand::prelude::*;
+        use std::{collections::BTreeMap, fs::File, io::Read, ptr, sync::{Arc, Mutex}};
 
         use casper_types::{
             api_error,
@@ -547,10 +542,19 @@ mod standalone_support {
             call_stack_len_ptr: *mut usize,
             result_size_ptr: *mut usize,
         ) -> i32 {
+            todo!("casper_load_call_stack")
         }
 
         fn runtime_new_uref(value: CLValue) -> URef {
-            let uref = URef::new(rand::random(), AccessRights::READ_ADD_WRITE);
+            // let addr: [u8; 32] = {
+            //     // TODO: something better
+            //     let mut f = File::open("/dev/urandom").unwrap();
+            //     let mut buf = [0u8; 32];
+            //     f.recad_exact(&mut buf).unwrap();
+            //     buf
+            // };
+
+            let uref = URef::new([42;32], AccessRights::READ_ADD_WRITE);
             let storage = unsafe { STORAGE.get_or_insert_with(|| BTreeMap::default()) };
             storage.insert(Key::from(uref), value);
             uref
